@@ -25,18 +25,18 @@ For this usage example, we will be creating a barebones loot table. One pool, on
 
 In order to create a loot table, you'll need a table, a pool, and an entry. You define loot tables, pools, and entries like such:
 ```py
-from pyloottable import LootTable, LootTablePool, LootTableEntry, LootTableTypes, LootTableEntryTypes
+from pyloottable import Table, Pool, Entry, TableTypes, EntryTypes
 
 
-entry = LootTableEntry(LootTableEntryTypes.ITEM).gen_entry(name='minecraft:dirt')
+entry = Entry(EntryTypes.ITEM).gen_entry(name='minecraft:dirt')
 
-pool = LootTablePool(1, 'dirt0', entry).pool
+pool = Pool(1, 'dirt0', entry).pool
 
-table = LootTable(LootTableTypes.BLOCK, pool).table
+table = Table(TableTypes.BLOCK, pool).table
 ```
-Now, this is fairly easy to explain. This language works bottom up. You start at the very bottom with a *LootTable* object. It takes in a *LootTableTypes* value, which has a couple different types corresponding to the different types of loot tables:
+Now, this is fairly easy to explain. This language works bottom up. You start at the very bottom with a *Table* object. It takes in a *TableTypes* value, which has a couple different types corresponding to the different types of loot tables:
 
-LootTableType | JSON Value 
+TableType     | JSON Value 
 ---           | ---
 ADVANCEMENT   | "minecraft:advancement_reward"
 BLOCK         | "minecraft:block"
@@ -45,13 +45,13 @@ ENTITY        | "minecraft:entity"
 FISHING       | "minecraft:fishing"
 GENERIC       | "minecraft:generic"
 
-The *LootTable* object also takes in a pool which you define above. To get the actual dictionary from the object, call the `table` property on it. That should return the dictionary required for JSON parsing.
+The *Table* object also takes in a pool which you define above. To get the actual dictionary from the object, call the `table` property on it. That should return the dictionary required for JSON parsing.
 
-Next, you define a *LootTablePool*. This object takes in how many rolls on the pool it should roll, a name for the pool, and an entry. In order to pass the proper dictionary to your *LootTable* object, call the `pool` property on it.
+Next, you define a *Pool*. This object takes in how many rolls on the pool it should roll, a name for the pool, and an entry. In order to pass the proper dictionary to your *Table* object, call the `pool` property on it.
 
-Next, you define a *LootTableEntry* object. This object takes in a *LootTableEntryTypes* value, depending on what type of entry you want this to be.
+Next, you define a *Entry* object. This object takes in a *EntryTypes* value, depending on what type of entry you want this to be.
 
-LootTableEntryType | JSON Value
+EntryType          | JSON Value
 ---                | ---
 ALTERNATIVES       | "minecraft:alternatives"
 DYNAMIC            | "minecraft:dynamic"
@@ -67,15 +67,15 @@ After that, you run the `gen_entry` method, in which you pass in your various ar
 Once the entry is created, we now should test that our output is as desired. In order to do this, we pass our table to a JSON parser, get the string, and print it out. Your code should look like such:
 
 ```py
-from pyloottable import LootTable, LootTablePool, LootTableEntry, LootTableTypes, LootTableEntryTypes
+from pyloottable import Table, Pool, Entry, TableTypes, EntryTypes
 import json
 
 
-entry = LootTableEntry(LootTableEntryTypes.ITEM).gen_entry(name='minecraft:dirt')
+entry = Entry(EntryTypes.ITEM).gen_entry(name='minecraft:dirt')
 
-pool = LootTablePool(1, 'dirt0', entry).pool
+pool = Pool(1, 'dirt0', entry).pool
 
-table = LootTable(LootTableTypes.BLOCK, pool).table
+table = Table(TableTypes.BLOCK, pool).table
 
 table_json = json.dumps(table, indent=4)
 print(table_json)
@@ -109,30 +109,30 @@ This will open a new file named after what you called it in the first parameter 
 ### Advanced Concepts
 
 #### Functions, Conditions, and Predicates
-In order to add a function or a condition to an entry, pool, or table, you'll first have to create a *LootTableFunction* or *LootTableCondition* object that represents said function/condition, and generate the dict associated with said object. 
+In order to add a function or a condition to an entry, pool, or table, you'll first have to create a *Function* or *Condition* object that represents said function/condition, and generate the dict associated with said object. 
 
-Some conditions require predicates to be passed in. You can initialize a *LootTablePredicate*, and pass in the tags needed through the keyword arguments. To get the proper dictionary, call the `predicate` property on it to retrieve the proper dictionary.
+Some conditions require predicates to be passed in. You can initialize a *Predicate*, and pass in the tags needed through the keyword arguments. To get the proper dictionary, call the `predicate` property on it to retrieve the proper dictionary.
 
 Please note that functions can take conditions as well.
 
 Functions should be placed above entries, and conditions should be placed above functions. If a condition requires entries, then those entries should be placed above the condition. If a condition requires a predicate, it should be placed above what condition they are being used for.
 
 ```py
-from pyloottable import LootTable, LootTableTypes, LootTablePool, LootTableEntry, LootTableEntryTypes, LootTableFunction, LootTableFunctions, LootTableCondition, LootTableConditions, LootTablePredicate
+from pyloottable import Table, TableTypes, Pool, Entry, EntryTypes, Function, Functions, Condition, Conditions, Predicate
 import json
 
 
-predicate = LootTablePredicate(flags={'is_on_fire': True}).predicate
+predicate = Predicate(flags={'is_on_fire': True}).predicate
 
-condition = LootTableCondition(LootTableConditions.ENTITY_PROPERTIES).gen_condition(entity='this', predicate=predicate)
+condition = Condition(Conditions.ENTITY_PROPERTIES).gen_condition(entity='this', predicate=predicate)
 
-function = LootTableFunction(LootTableFunctions.FURNACE_SMELT).gen_function(conditions=condition)
+function = Function(Functions.FURNACE_SMELT).gen_function(conditions=condition)
 
-entry = LootTableEntry(LootTableEntryTypes.ITEM).gen_entry(name='minecraft:porkchop', functions=function)
+entry = Entry(EntryTypes.ITEM).gen_entry(name='minecraft:porkchop', functions=function)
 
-pool = LootTablePool(1, 'porkchop_cook_example', entry).pool
+pool = Pool(1, 'porkchop_cook_example', entry).pool
 
-table = LootTable(LootTableTypes.ENTITY, pool).table
+table = Table(TableTypes.ENTITY, pool).table
 
 with open('zombie.json', 'w') as file:
     json.dump(table, file, indent=4)
@@ -168,7 +168,7 @@ Once generated, it should look like this:
 
 Functions and conditions in this program include:
 
-LootTableFunction   | JSON Value
+Function            | JSON Value
 ---                 | ---
 APPLY_BONUS         | "minecraft:apply_bonus"
 COPY_NAME           | "minecraft:copy_name"
@@ -188,7 +188,7 @@ SET_LORE            | "minecraft:set_lore"
 SET_NAME            | "minecraft:set_name"
 SET_NBT             | "minecraft:set_nbt"
 
-LootTableCondition  | JSON Value
+Condition           | JSON Value
 ---                 | ---
 ALTERNATIVE         | "minecraft:alternative"
 BLOCKSTATE_PROPERTY | "minecraft:block_state_property"
@@ -209,20 +209,20 @@ WEATHER             | "minecraft:weather_check"
 In order to define more than one pool, entry, function, or condition to use, define the pools or entries you want in a list, like so:
 
 ```py
-from pyloottable import LootTable, LootTableTypes, LootTablePool, LootTableEntry, LootTableEntryTypes
+from pyloottable import Table, TableTypes, Pool, Entry, EntryTypes
 import json
 
-entry = LootTableEntry(LootTableEntryTypes.ITEM).gen_entry(name='minecraft:dirt')
-entry2 = LootTableEntry(LootTableEntryTypes.ITEM).gen_entry(name='minecraft:grass')
+entry = Entry(EntryTypes.ITEM).gen_entry(name='minecraft:dirt')
+entry2 = Entry(EntryTypes.ITEM).gen_entry(name='minecraft:grass')
 
-entry3 = LootTableEntry(LootTableEntryTypes.ITEM).gen_entry(name='minecraft:cobblestone')
-entry4 = LootTableEntry(LootTableEntryTypes.EMPTY).gen_entry()
+entry3 = Entry(EntryTypes.ITEM).gen_entry(name='minecraft:cobblestone')
+entry4 = Entry(EntryTypes.EMPTY).gen_entry()
 
-pool = LootTablePool(1, 'dirt0', [entry, entry2]).pool
+pool = Pool(1, 'dirt0', [entry, entry2]).pool
 
-pool2 = LootTablePool(1, 'dirt1', [entry3, entry4]).pool
+pool2 = Pool(1, 'dirt1', [entry3, entry4]).pool
 
-loot_table = LootTable(LootTableTypes.BLOCK, [pool, pool2]).table
+loot_table = Table(TableTypes.BLOCK, [pool, pool2]).table
 
 with open('example_json.json', 'w') as file:
     json.dump(loot_table, file, indent=4)
